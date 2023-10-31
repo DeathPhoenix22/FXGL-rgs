@@ -655,6 +655,8 @@ class FXGLApplication : Application() {
                 return
             }
 
+            // since mainMenu is a subscene we need an actual scene before it
+            mainWindow.setScene(dummyScene)
             mainWindow.pushState(mainMenu!!)
         }
 
