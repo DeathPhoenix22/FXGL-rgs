@@ -372,15 +372,15 @@ public final class ParticleEmitter {
 
     private boolean isPaused = false;
 
-    boolean isPaused() {
+    public boolean isPaused() {
         return isPaused;
     }
 
-    void pause() {
+    public void pause() {
         isPaused = true;
     }
 
-    void resume() {
+    public void resume() {
         isPaused = false;
     }
 
@@ -408,7 +408,7 @@ public final class ParticleEmitter {
      * @return list of particles spawned
      * @implNote cached array is used, do not obtain ownership
      */
-    Array<Particle> emit(double x, double y) {
+    public Array<Particle> emit(double x, double y) {
         double rate = getEmissionRate();
 
         rateAC += rate;

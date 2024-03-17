@@ -36,7 +36,12 @@ data class Tileset(
 
 data class Tile(
         var id: Int = 0,
+        var type: String = "",
         var image: String = "",
+        var x: Int = 0,
+        var y: Int = 0,
+        var width: Int = 0,
+        var height: Int = 0,
         var imagewidth: Int = 0,
         var imageheight: Int = 0,
         var transparentcolor: String = ""

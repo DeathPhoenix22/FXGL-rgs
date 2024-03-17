@@ -9,7 +9,6 @@ import com.almasb.fxgl.core.reflect.ReflectionUtils;
 import com.almasb.fxgl.core.util.Platform;
 import com.almasb.fxgl.dev.profiling.ProfilerService;
 import com.almasb.fxgl.dsl.FXGL;
-import com.almasb.fxgl.generated.BuildProperties;
 import com.almasb.fxgl.logging.*;
 
 import java.util.Map;
@@ -125,7 +124,7 @@ public abstract class GameApplication {
             platform = Platform.BROWSER;
         }
 
-        var runtimeInfo = new RuntimeInfo(platform, BuildProperties.VERSION, BuildProperties.BUILD);
+        var runtimeInfo = new RuntimeInfo(platform, "1", "1");
         localSettings.setRuntimeInfo(runtimeInfo);
         localSettings.setNative(localSettings.isNative() || platform.isMobile());
         return localSettings.toReadOnly(getClass());

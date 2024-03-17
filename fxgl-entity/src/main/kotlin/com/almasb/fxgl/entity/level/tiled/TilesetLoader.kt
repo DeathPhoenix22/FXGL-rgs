@@ -39,12 +39,12 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
         // we offset because data is encoded as continuous
         gid -= tileset.firstgid
 
-        val w = tileset.tilewidth
-        val h = tileset.tileheight
+        var w = tileset.tilewidth
+        var h = tileset.tileheight
 
         val buffer = WritableImage(w, h)
 
-        val sourceImage: Image
+        var sourceImage: Image
         val srcx: Int
         val srcy: Int
 
@@ -62,10 +62,14 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
             val tile = tileset.tiles.find { it.id == gid }
                     ?: throw IllegalArgumentException("Tile with id=$gid not found")
 
-            sourceImage = loadImage(tile.image, tile.transparentcolor, tile.imagewidth, tile.imageheight)
+            w = tile.width
+            h = tile.height
+            srcx = tile.x
+            srcy = tile.y
 
-            srcx = 0
-            srcy = 0
+            sourceImage = loadImage(tile.image, tile.transparentcolor, tile.imagewidth, tile.imageheight)
+            sourceImage = Texture(sourceImage).subTexture(Rectangle2D(srcx.toDouble(), srcy.toDouble(), w.toDouble(), h.toDouble())).image
+
         }
 
         buffer.pixelWriter.setPixels(0, 0,
@@ -123,8 +127,8 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
             val x = i % layer.width
             val y = i / layer.width
 
-            val w = tileset.tilewidth
-            val h = tileset.tileheight
+            var w = tileset.tilewidth
+            var h = tileset.tileheight
 
             var sourceImage: Image
             var srcx: Int
@@ -153,10 +157,14 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
                 val tile = tileset.tiles.find { it.id == gid }
                         ?: throw IllegalArgumentException("Tile with id=$gid not found")
 
-                sourceImage = loadImage(tile.image, tile.transparentcolor, tile.imagewidth, tile.imageheight)
+                w = tile.width
+                h = tile.height
+                srcx = tile.x
+                srcy = tile.y
 
-                srcx = 0
-                srcy = 0
+                sourceImage = loadImage(tile.image, tile.transparentcolor, tile.imagewidth, tile.imageheight)
+                sourceImage = Texture(sourceImage).subTexture(Rectangle2D(srcx.toDouble(), srcy.toDouble(), w.toDouble(), h.toDouble())).image
+
             }
 
             if (isFlippedHorizontal) {
@@ -408,14 +416,43 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
      * @param tilesets all tilesets
      * @return tileset
      */
-    private fun findTileset(gid: Int, tilesets: List<Tileset>): Tileset {
+    fun findTileset(gid: Int, tilesets: List<Tileset>): Tileset {
         for (tileset in tilesets) {
-            if (gid >= tileset.firstgid && gid < tileset.firstgid + tileset.tilecount) {
-                return tileset
+            if(tileset.isSpriteSheet) {
+                if (gid >= tileset.firstgid && gid < tileset.firstgid + tileset.tilecount) {
+                    return tileset
+                }
+            } else {
+                val maxIdTile = tileset.tiles.maxWith(Comparator.comparingInt { it.id })
+                if (gid >= tileset.firstgid && gid <= tileset.firstgid + maxIdTile.id) {
+                    return tileset
+                }
             }
 
         }
         throw IllegalArgumentException("Tileset for gid=$gid not found")
+    }
+
+    /**
+     * Finds tile where gid is located.
+     *
+     * @param gid tile id
+     * @param tilesets all tilesets
+     * @return tile
+     */
+    fun findTile(gid: Int, tilesets: List<Tileset>): Tile {
+        return findTile(gid, findTileset(gid, tilesets))
+    }
+
+    /**
+     * Finds tile where gid is located.
+     *
+     * @param gid tile id
+     * @param tilesets all tilesets
+     * @return tile
+     */
+    fun findTile(gid: Int, tileset: Tileset): Tile {
+        return tileset.tiles.find { it.id == (gid - tileset.firstgid) } ?: throw IllegalArgumentException("Tile with id=$gid not found")
     }
 
     private fun loadImage(tilesetImageName: String, transparentcolor: String, w: Int, h: Int): Image {

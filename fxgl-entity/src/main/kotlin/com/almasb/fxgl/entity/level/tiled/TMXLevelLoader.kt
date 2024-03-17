@@ -128,6 +128,17 @@ class TMXLevelLoader
                             (tiledObject.y - if (tiledObject.gid == 0) 0 else tiledObject.height).toDouble()
                     )
 
+                    var tile = tilesetLoader.findTile(tiledObject.gid, map.tilesets);
+
+                    if (tiledObject.name.isNullOrEmpty()) {
+                        tiledObject.name = tile.image.substringAfterLast("/").substringBefore(".");
+                    }
+
+                    // Find the Object type based on it's ObjectSet definition
+                    if (tiledObject.type.isNullOrEmpty()) {
+                        tiledObject.type = tile.type;
+                    }
+
                     // make data available when inside factory's spawn methods
                     data.run {
                         put("name", tiledObject.name)
@@ -323,6 +334,11 @@ class TMXLevelLoader
 
     private fun parseTile(tile: Tile, start: StartElement) {
         tile.id = start.getInt("id")
+        tile.type = start.getString("type")
+        tile.x = start.getInt("x")
+        tile.y = start.getInt("y")
+        tile.width = start.getInt("width")
+        tile.height = start.getInt("height")
     }
 
     /**
@@ -343,6 +359,13 @@ class TMXLevelLoader
         tile.imagewidth = start.getInt("width")
         tile.imageheight = start.getInt("height")
         tile.transparentcolor = start.getString("trans")
+
+        if(tile.width <= 0) {
+            tile.width = tile.imagewidth
+        }
+        if(tile.height <= 0) {
+            tile.height = tile.imageheight
+        }
     }
 
     private fun parseTileLayer(layer: Layer, start: StartElement) {
