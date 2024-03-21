@@ -41,7 +41,7 @@ public class AStarPathfindingSample extends GameApplication {
 
     @Override
     protected void initGame() {
-        var grid = new AStarGrid(1280 / 40, 720 / 40, Diagonal.ALLOWED);
+        var grid = new AStarGrid(1280 / 40, 720 / 40);
 
         agent = entityBuilder()
                 .viewWithBBox(new Rectangle(40, 40, Color.BLUE))
