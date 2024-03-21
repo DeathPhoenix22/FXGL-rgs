@@ -48,17 +48,6 @@ public class AStarGridTest {
     }
 
     @Test
-    public void testDiagonalAssignment() {
-        assertEquals(Diagonal.NEVER, grid.getDiagonal());
-
-        grid.setDiagonal(Diagonal.ALLOWED);
-        assertEquals(Diagonal.ALLOWED, grid.getDiagonal());
-
-        grid = new AStarGrid(GRID_SIZE, GRID_SIZE, Diagonal.ALLOWED);
-        assertEquals(Diagonal.ALLOWED, grid.getDiagonal());
-    }
-
-    @Test
     public void testGetWalkableCells() {
         var cells = grid.getWalkableCells();
         assertThat(cells.size(), is(grid.getWidth() * grid.getHeight()));

@@ -7,7 +7,7 @@
 package com.almasb.fxgl.core.collection.grid;
 
 import com.almasb.fxgl.core.math.FXGLMath;
-import static com.almasb.fxgl.core.collection.grid.Diagonal.*;
+import static com.almasb.fxgl.core.collection.grid.NeighborDirection.*;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -112,14 +112,6 @@ public class Grid<T extends Cell> {
         return cellHeight;
     }
 
-    public final void setDiagonal(Diagonal diagonal) {
-        this.diagonal = diagonal;
-    }
-
-    public final Diagonal getDiagonal() {
-        return diagonal;
-    }
-
     /**
      * Checks if given (x,y) is within the bounds of the grid,
      * i.e. get(x, y) won't return OOB.
@@ -146,24 +138,34 @@ public class Grid<T extends Cell> {
 
     /**
      * Note: returned cells are in the grid (i.e. bounds are checked).
-     * Diagonal cells are not included.
      * The order is left, up, right, down.
      *
-     * @return a new list of neighboring cells to given (x, y)
+     * @return a new list of neighboring cells to given (x, y) in 4 directions
      */
     public final List<T> getNeighbors(int x, int y) {
+        return getNeighbors(x, y, FOUR_DIRECTIONS);
+    }
+
+    /**
+     * Note: returned cells are in the grid (i.e. bounds are checked).
+     * The order is left, up, right, down for 4 directions
+     * + (optionally) up-left, up-right, down-right, down-left for 8 directions.
+     *
+     * @return a new list of neighboring cells to given (x, y) in desired # of directions
+     */
+    public final List<T> getNeighbors(int x, int y, NeighborDirection neighborDirection) {
         List<T> result = new ArrayList<>();
         getLeft(x, y).ifPresent(result::add);
         getUp(x, y).ifPresent(result::add);
         getRight(x, y).ifPresent(result::add);
         getDown(x, y).ifPresent(result::add);
 
-        // Include "Corner" neighbors only if diagonal movement is allowed
-        if(diagonal.is(ALLOWED)) {
+        // Include "Corner" neighbors when eight directions
+        if (neighborDirection == EIGHT_DIRECTIONS) {
             getUpLeft(x, y).ifPresent(result::add);
             getUpRight(x, y).ifPresent(result::add);
-            getDownLeft(x, y).ifPresent(result::add);
             getDownRight(x, y).ifPresent(result::add);
+            getDownLeft(x, y).ifPresent(result::add);
         }
 
         return result;
