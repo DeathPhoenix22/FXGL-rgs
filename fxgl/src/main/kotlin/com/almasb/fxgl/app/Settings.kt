@@ -41,6 +41,7 @@ import javafx.beans.property.*
 import javafx.scene.input.KeyCode
 import javafx.scene.paint.Color
 import javafx.stage.StageStyle
+import javafx.util.Duration
 import java.util.*
 import java.util.Collections.unmodifiableList
 import kotlin.math.roundToInt
@@ -271,6 +272,12 @@ class GameSettings(
         var ticksPerSecond: Int = -1,
 
         /**
+         * Rate (time) between each FPS sampling update.
+         * Default value is 500 millis
+         */
+        var fpsRefreshRate: Duration = Duration.millis(500.0),
+
+        /**
          * How fast the 3D mouse movements are (example, rotating the camera).
          */
         var mouseSensitivity: Double = 0.2,
@@ -403,6 +410,7 @@ class GameSettings(
                 secondsIn24h,
                 randomSeed,
                 ticksPerSecond,
+                fpsRefreshRate,
                 userAppClass,
                 mouseSensitivity,
                 defaultLanguage,
@@ -583,6 +591,8 @@ class ReadOnlyGameSettings internal constructor(
         val randomSeed: Long,
 
         val ticksPerSecond: Int,
+
+        val fpsRefreshRate: Duration,
 
         val userAppClass: Class<*>,
 
