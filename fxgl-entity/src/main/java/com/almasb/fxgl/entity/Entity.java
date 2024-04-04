@@ -253,7 +253,7 @@ public class Entity implements Animatable, Copyable<Entity> {
     /**
      * Sets entity to be not active.
      */
-    public void markForRemoval() {
+    void markForRemoval() {
         onNotActive.run();
         active.set(false);
     }
