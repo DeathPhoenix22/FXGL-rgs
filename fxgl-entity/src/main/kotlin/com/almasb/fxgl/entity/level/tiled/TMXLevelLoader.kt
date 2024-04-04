@@ -174,7 +174,7 @@ class TMXLevelLoader
 
                         // non-zero gid means view is read from the tileset
                         if (tiledObject.gid != 0) {
-                            e.viewComponent.addChild(tilesetLoader.loadView(tiledObject.gid, tiledObject.isFlippedHorizontal, tiledObject.isFlippedVertical))
+                            //e.viewComponent.addChild(tilesetLoader.loadView(tiledObject.gid, tiledObject.isFlippedHorizontal, tiledObject.isFlippedVertical))
                         }
                     }
                 }
