@@ -107,6 +107,10 @@ class TMXLevelLoader
                                 it.viewComponent.addChild(tilesetLoader.loadViewIsometric(layer.name))
                             }
 
+                            "staggered" -> {
+                                it.viewComponent.addChild(tilesetLoader.loadViewIsometric(layer.name))
+                            }
+
                             else -> {
                                 log.warning("Unknown map orientation: ${map.orientation}")
                             }
