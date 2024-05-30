@@ -59,7 +59,15 @@ class TMXLevelLoader
 
             val objectEntities = createObjectLayerEntities(map, tilesetLoader, world)
 
-            val level = Level(map.width * map.tilewidth, map.height * map.tileheight, tileLayerEntities + objectEntities)
+            var levelWidth = map.width * map.tilewidth
+            var levelHeight = map.height * map.tileheight
+
+            if (map.orientation == "staggered") {
+                levelWidth = (map.width - 1) * map.tilewidth
+                levelHeight = (map.height - 1) * map.tileheight / 2
+            }
+
+            val level = Level(levelWidth, levelHeight, tileLayerEntities + objectEntities)
 
             map.properties.forEach { (key, value) ->
 
@@ -108,7 +116,7 @@ class TMXLevelLoader
                             }
 
                             "staggered" -> {
-                                it.viewComponent.addChild(tilesetLoader.loadViewIsometric(layer.name))
+                                it.viewComponent.addChild(tilesetLoader.loadViewStaggered(layer.name))
                             }
 
                             else -> {
