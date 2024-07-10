@@ -7,16 +7,10 @@
 package com.almasb.fxgl.entity.level.tiled
 
 import com.almasb.fxgl.logging.Logger
-import com.almasb.fxgl.texture.Texture
-import com.almasb.fxgl.texture.getDummyImage
-import com.almasb.fxgl.texture.resize
-import com.almasb.fxgl.texture.flipHorizontally
-import com.almasb.fxgl.texture.flipVertically
+import com.almasb.fxgl.texture.*
 import javafx.geometry.Rectangle2D
 import javafx.scene.Node
-import javafx.scene.image.Image
-import javafx.scene.image.ImageView
-import javafx.scene.image.WritableImage
+import javafx.scene.image.*
 import javafx.scene.paint.Color
 import java.net.URI
 import java.net.URL
@@ -30,6 +24,7 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
     private val log = Logger.get<TilesetLoader>()
 
     private val imageCache = hashMapOf<String, Image>()
+    private val imageColorsCache = hashMapOf<String, Array<Color?>>()
 
     fun loadView(gidArg: Int, isFlippedHorizontal: Boolean, isFlippedVertical: Boolean): Node {
         var gid = gidArg
@@ -424,7 +419,6 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
         log.debug("Created buffer with size ${buffer.width}x${buffer.height}")
 
         for (i in 0 until layer.data.size) {
-
             var gid = layer.data.get(i).toInt()
 
             // empty tile
@@ -433,11 +427,19 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
 
             val tileset = findTileset(gid, map.tilesets)
 
+            var tilesetColors: Array<Color?>
+            if (tileset.image in imageColorsCache) {
+                tilesetColors = imageColorsCache[tileset.image]!!
+            } else {
+                tilesetColors = Array(tileset.imagewidth * tileset.imageheight) { null }
+                imageColorsCache[tileset.image] = tilesetColors
+            }
+
             // we offset because data is encoded as continuous
             gid -= tileset.firstgid
 
-            val offsetX = map.tilewidth / 2
-            val offsetY = map.tileheight / 2
+            val offsetX = tileset.tilewidth - map.tilewidth + map.tilewidth / 2
+            val offsetY = tileset.tileheight - map.tileheight + map.tileheight / 2
 
             // image destination
             val x = i % layer.width
@@ -459,9 +461,7 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
 
                 srcx = tilex * w + tileset.margin + tilex * tileset.spacing
                 srcy = tiley * h + tileset.margin + tiley * tileset.spacing
-
             } else {
-
                 // tileset is a collection of images
                 val tile = tileset.tiles.find { it.id == gid }
                     ?: throw IllegalArgumentException("Tile with id=$gid not found")
@@ -480,14 +480,35 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
             // in order to take into account transparency, we have to draw pixels 1 by 1
             for (dy in 0 until h) {
                 for (dx in 0 until w) {
-                    val c = sourceImage.pixelReader.getColor(srcx + dx, srcy + dy)
+                    if(bufferX + dx < 0 || bufferY + dy < 0) {
+                        continue
+                    }
 
-                    if (c != Color.TRANSPARENT && bufferX + dx >= 0 && bufferY + dy >= 0) {
-                        buffer.pixelWriter.setColor(
-                            bufferX + dx,
-                            bufferY + dy,
-                            c
-                        )
+                    var sourceColor = tilesetColors[(srcy + dy) * tileset.imagewidth + srcx + dx]
+                    if(sourceColor == null) {
+                        sourceColor = sourceImage.pixelReader.getColor(srcx + dx, srcy + dy)
+                        tilesetColors[(srcy + dy) * tileset.imagewidth + srcx + dx] = sourceColor
+                    }
+
+                    if (sourceColor != null) {
+                        val opacity = sourceColor.opacity;
+                        if(opacity == 1.0) {
+                            buffer.pixelWriter.setColor(bufferX + dx, bufferY + dy, sourceColor)
+                        } else if(opacity != 0.0) {
+                            var ratio = sourceColor.opacity
+                            if (ratio > 1.0) ratio = 1.0
+                            else if (ratio < 0.0) ratio = 0.0
+                            val iRatio = 1.0 - ratio
+
+                            // Overlay
+                            var bufferColor = buffer.pixelReader.getColor(bufferX + dx, bufferY + dy)
+                            val r = ((bufferColor.red * iRatio) + (sourceColor.red * ratio))
+                            val g = ((bufferColor.green * iRatio) + (sourceColor.green * ratio))
+                            val b = ((bufferColor.blue * iRatio) + (sourceColor.blue * ratio))
+                            val a = ((bufferColor.opacity * iRatio) + (sourceColor.opacity * ratio))
+
+                            buffer.pixelWriter.setColor(bufferX + dx, bufferY + dy, Color(r, g, b, a))
+                        }
                     }
                 }
             }
