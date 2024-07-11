@@ -569,9 +569,19 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
         }
 
         val image = try {
-            val ext = mapURL.toExternalForm().substringBeforeLast("/") + "/"
-
-            val stream = URI.create(ext + tilesetImageName).toURL().openStream()
+            var imageName = tilesetImageName;
+            var ext = mapURL.toExternalForm().substringBeforeLast("/") + "/"
+            if(URI.create(ext).scheme.equals("jar")) {
+                for(imageNamePart in imageName.split("/", ignoreCase = true, limit = 0)) {
+                    // Manually perform ../ on paths for Jar resources
+                    if(".." == imageNamePart) {
+                        imageName = imageName.substringAfter("../")
+                        ext = ext.substringBeforeLast("/").substringBeforeLast("/") + "/"
+                    }
+                }
+            }
+            
+            val stream = URI.create(ext + imageName).toURL().openStream()
 
             var img = if (transparentcolor.isEmpty())
                 Image(stream)
@@ -581,7 +591,7 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
             stream.close()
 
             if (img.isError) {
-                log.warning("${ext + tilesetImageName} cannot be loaded")
+                log.warning("${ext + imageName} cannot be loaded")
                 img = resize(getDummyImage(), w, h)
             }
 
