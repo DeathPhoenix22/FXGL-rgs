@@ -117,7 +117,9 @@ public class Entity implements Animatable, Copyable<Entity> {
 
     private List<ComponentListener> componentListeners = new ArrayList<>();
 
-    private ReadOnlyBooleanWrapper active = new ReadOnlyBooleanWrapper(false);
+    private boolean visible = true;
+    private boolean active = false;
+    private ReadOnlyBooleanWrapper activeProp = new ReadOnlyBooleanWrapper(active);
 
     private Runnable onActive = EmptyRunnable.INSTANCE;
     private Runnable onNotActive = EmptyRunnable.INSTANCE;
@@ -139,6 +141,10 @@ public class Entity implements Animatable, Copyable<Entity> {
         addComponentNoChecks(transform);
         addComponentNoChecks(bbox);
         addComponentNoChecks(view);
+
+        // Major Optimization -> Prevent Property unboxing when calling "isActive" or "isVisible" which are constantly called
+        activeProp.addListener((prop, wasActive, isActive) -> active = isActive);
+        view.visibleProperty().addListener((prop, wasVisible, isVisible) -> visible = isVisible);
     }
 
     /**
@@ -156,7 +162,7 @@ public class Entity implements Animatable, Copyable<Entity> {
     void init(GameWorld world) {
         this.world = world;
         onActive.run();
-        active.set(true);
+        activeProp.set(true);
     }
 
     /**
@@ -255,11 +261,11 @@ public class Entity implements Animatable, Copyable<Entity> {
      */
     void markForRemoval() {
         onNotActive.run();
-        active.set(false);
+        activeProp.set(false);
     }
 
     public final ReadOnlyBooleanProperty activeProperty() {
-        return active.getReadOnlyProperty();
+        return activeProp.getReadOnlyProperty();
     }
 
     /**
@@ -269,7 +275,7 @@ public class Entity implements Animatable, Copyable<Entity> {
      * @return true if entity is active, else false
      */
     public final boolean isActive() {
-        return active.get();
+        return active;
     }
 
     /**
@@ -991,7 +997,7 @@ public class Entity implements Animatable, Copyable<Entity> {
     }
 
     public final boolean isVisible() {
-        return view.isVisible();
+        return visible;
     }
 
     public final void setZIndex(int z) {

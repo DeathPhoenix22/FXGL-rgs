@@ -113,9 +113,8 @@ public final class PhysicsWorld implements EntityWorldListener, ContactListener,
 
     @Override
     public void onEntityAdded(Entity entity) {
-        entities.add(entity);
-
         if (entity.hasComponent(PhysicsComponent.class)) {
+            entities.add(entity);
             onPhysicsEntityAdded(entity);
         }
     }
@@ -148,9 +147,8 @@ public final class PhysicsWorld implements EntityWorldListener, ContactListener,
 
     @Override
     public void onEntityRemoved(Entity entity) {
-        entities.removeValueByIdentity(entity);
-
         if (entity.hasComponent(PhysicsComponent.class)) {
+            entities.removeValueByIdentity(entity);
             onPhysicsEntityRemoved(entity);
         }
     }
