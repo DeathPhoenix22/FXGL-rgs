@@ -49,10 +49,10 @@ public class NetworkingSample extends GameApplication {
                 isServer = answer;
 
                 if (isServer) {
-                    server = getNetService().newTCPServer(55555);
+                    server = getNetService().newTCPServer(55575);
                     server.startAsync();
                 } else {
-                    var client = getNetService().newTCPClient("localhost", 55555);
+                    var client = getNetService().newTCPClient("localhost", 55575);
                     client.setOnConnected(connection -> {
                         connection.addMessageHandlerFX((conn, message) -> {
                             boolean isSelected = message.get("isSelected");

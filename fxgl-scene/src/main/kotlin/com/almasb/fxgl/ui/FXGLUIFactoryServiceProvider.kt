@@ -53,17 +53,29 @@ class FXGLUIFactoryServiceProvider : UIFactoryService() {
     }
 
     override fun newText(textBinding: StringExpression): Text {
-        val text = newText(textBinding.get())
+        return newText(textBinding, Color.WHITE, 18.0)
+    }
+
+    override fun newText(textBinding: StringExpression, fontSize: Double): Text {
+        return newText(textBinding, Color.WHITE, fontSize)
+    }
+
+    override fun newText(textBinding: StringExpression, textColor: Color, fontSize: Double): Text {
+        return newText(textBinding, textColor, UI, fontSize)
+    }
+
+    override fun newText(textBinding: StringExpression, textColor: Color, type: FontType, fontSize: Double): Text {
+        val text = newText(textBinding.get(), textColor, type, fontSize)
         text.textProperty().bind(textBinding)
         return text
     }
 
-    override fun newText(message: String, fontSize: Double): Text {
-        return newText(message, Color.WHITE, fontSize)
-    }
-
     override fun newText(message: String): Text {
         return newText(message, Color.WHITE, 18.0)
+    }
+
+    override fun newText(message: String, fontSize: Double): Text {
+        return newText(message, Color.WHITE, fontSize)
     }
 
     override fun newText(message: String, textColor: Color, fontSize: Double): Text {

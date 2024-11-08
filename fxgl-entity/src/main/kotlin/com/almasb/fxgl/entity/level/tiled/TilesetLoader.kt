@@ -21,10 +21,13 @@ import java.net.URL
  */
 class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
 
+    companion object {
+        @JvmStatic val imageColorsCache = hashMapOf<String, Array<Color?>>()
+    }
+
     private val log = Logger.get<TilesetLoader>()
 
     private val imageCache = hashMapOf<String, Image>()
-    private val imageColorsCache = hashMapOf<String, Array<Color?>>()
 
     fun loadView(gidArg: Int, isFlippedHorizontal: Boolean, isFlippedVertical: Boolean): Node {
         var gid = gidArg
@@ -426,14 +429,7 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
                 continue
 
             val tileset = findTileset(gid, map.tilesets)
-
-            var tilesetColors: Array<Color?>
-            if (tileset.image in imageColorsCache) {
-                tilesetColors = imageColorsCache[tileset.image]!!
-            } else {
-                tilesetColors = Array(tileset.imagewidth * tileset.imageheight) { null }
-                imageColorsCache[tileset.image] = tilesetColors
-            }
+            var tilesetColors = getTilesetColors(tileset)
 
             // we offset because data is encoded as continuous
             gid -= tileset.firstgid
@@ -479,15 +475,19 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
             // pixelWriter.setPixels replaces pixels, does not blend them
             // in order to take into account transparency, we have to draw pixels 1 by 1
             for (dy in 0 until h) {
+                val pixelY = srcy + dy;
+                val scanlineOffset = pixelY * tileset.imagewidth;
                 for (dx in 0 until w) {
                     if(bufferX + dx < 0 || bufferY + dy < 0) {
                         continue
                     }
 
-                    var sourceColor = tilesetColors[(srcy + dy) * tileset.imagewidth + srcx + dx]
+                    val pixelX = srcx + dx;
+
+                    var sourceColor = tilesetColors[scanlineOffset + pixelX]
                     if(sourceColor == null) {
-                        sourceColor = sourceImage.pixelReader.getColor(srcx + dx, srcy + dy)
-                        tilesetColors[(srcy + dy) * tileset.imagewidth + srcx + dx] = sourceColor
+                        sourceColor = sourceImage.pixelReader.getColor(pixelX, pixelY)
+                        tilesetColors[scanlineOffset + pixelX] = sourceColor
                     }
 
                     if (sourceColor != null) {
@@ -606,6 +606,17 @@ class TilesetLoader(private val map: TiledMap, private val mapURL: URL) {
         imageCache[tilesetImageName] = image
 
         return image
+    }
+
+    @Synchronized private fun getTilesetColors(tileset: Tileset): Array<Color?> {
+        var tilesetColors: Array<Color?>
+        if (tileset.image in imageColorsCache) {
+            return imageColorsCache[tileset.image]!!
+        }
+
+        tilesetColors = Array(tileset.imagewidth * tileset.imageheight) { null }
+        imageColorsCache[tileset.image] = tilesetColors
+        return tilesetColors
     }
 
     fun copy(): TilesetLoader = TilesetLoader(map, mapURL)

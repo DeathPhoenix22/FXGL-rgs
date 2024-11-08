@@ -46,6 +46,18 @@ object MockUIFactoryService : UIFactoryService() {
         return Text()
     }
 
+    override fun newText(textBinding: StringExpression?, fontSize: Double): Text {
+        return Text()
+    }
+
+    override fun newText(textBinding: StringExpression?, textColor: Color?, fontSize: Double): Text {
+        return Text()
+    }
+
+    override fun newText(textBinding: StringExpression?, textColor: Color?, type: FontType?, fontSize: Double): Text {
+        return Text()
+    }
+
     override fun newText(message: String?, textColor: Color?, type: FontType?, fontSize: Double): Text {
         return Text()
     }

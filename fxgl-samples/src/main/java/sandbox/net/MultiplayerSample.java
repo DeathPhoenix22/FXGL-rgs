@@ -134,7 +134,7 @@ public class MultiplayerSample extends GameApplication {
                         inc("score", +1);
                     });
 
-                    server = getNetService().newTCPServer(55555);
+                    server = getNetService().newTCPServer(55575);
                     server.setOnConnected(conn -> {
                         connection = conn;
 
@@ -169,7 +169,7 @@ public class MultiplayerSample extends GameApplication {
                         text.setFont(Font.font(26.0));
                     }, Duration.seconds(5));
 
-                    var client = getNetService().newTCPClient("localhost", 55555);
+                    var client = getNetService().newTCPClient("localhost", 55575);
                     client.setOnConnected(conn -> {
                         getMPService().registerConnection(conn);
 
