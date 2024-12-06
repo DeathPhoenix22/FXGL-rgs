@@ -153,6 +153,7 @@ class TMXLevelLoader
 
                     // make data available when inside factory's spawn methods
                     data.run {
+                        put("layer", tiledObject.layer)
                         put("name", tiledObject.name)
                         put("type", tiledObject.type)
                         put("class", tiledObject.type)
@@ -440,6 +441,7 @@ class TMXLevelLoader
     }
 
     private fun parseObject(layer: Layer, obj: TiledObject, start: StartElement) {
+        obj.layer = layer.name;
         obj.name = start.getString("name")
         obj.type = start.getString("type")
         obj.typeClass = start.getString("class")
