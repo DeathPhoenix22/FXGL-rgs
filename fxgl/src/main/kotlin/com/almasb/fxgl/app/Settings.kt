@@ -272,6 +272,13 @@ class GameSettings(
         var ticksPerSecond: Int = -1,
 
         /**
+         * Speed factor of the engine loop tick
+         * This value will multiply the tps without affecting the native tpf value from the loop
+         * Default value is 1.0, which means "natural speed"
+         */
+        var speed: DoubleProperty = SimpleDoubleProperty(1.0),
+
+        /**
          * Rate (time) between each FPS sampling update.
          * Default value is 500 millis
          */
@@ -410,6 +417,7 @@ class GameSettings(
                 secondsIn24h,
                 randomSeed,
                 ticksPerSecond,
+                speed,
                 fpsRefreshRate,
                 userAppClass,
                 mouseSensitivity,
@@ -591,6 +599,8 @@ class ReadOnlyGameSettings internal constructor(
         val randomSeed: Long,
 
         val ticksPerSecond: Int,
+
+        var speed: DoubleProperty,
 
         val fpsRefreshRate: Duration,
 

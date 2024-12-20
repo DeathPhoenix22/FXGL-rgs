@@ -9,6 +9,8 @@ package com.almasb.fxgl.app
 import com.almasb.fxgl.logging.Logger
 import javafx.animation.AnimationTimer
 import javafx.application.Platform
+import javafx.beans.property.DoubleProperty
+import javafx.beans.property.SimpleDoubleProperty
 import javafx.util.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -29,6 +31,8 @@ internal class LoopRunner(
          * to the display refresh rate.
          */
         private val ticksPerSecond: Int = -1,
+
+        private val speed: DoubleProperty = SimpleDoubleProperty(1.0),
 
         private val fpsRefreshRate: Duration = Duration.millis(500.0),
 
@@ -126,7 +130,7 @@ internal class LoopRunner(
         lastFrameNanos = now
 
         cpuNanoTime = measureNanoTime {
-            runnable(tpf)
+            runnable(tpf * speed.value)
         }
     }
 }
