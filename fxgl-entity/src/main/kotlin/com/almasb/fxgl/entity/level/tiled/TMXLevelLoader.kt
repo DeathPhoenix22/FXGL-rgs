@@ -169,6 +169,10 @@ class TMXLevelLoader
                             put("color", it.color)
                         }
 
+                        tile.properties.forEach {
+                            put(it.key, it.value)
+                        }
+
                         tiledObject.properties.forEach {
                             put(it.key, it.value)
                         }
@@ -264,7 +268,9 @@ class TMXLevelLoader
                     }
 
                     "property" -> {
-                        if (mapPropertiesFinished) {
+                        if(insideTileTag) {
+                            parseTileProperty(currentTile, start)
+                        } else if (mapPropertiesFinished) {
                             parseObjectProperty(currentObject, start)
                         } else {
                             parseMapProperty(map, start)
@@ -352,6 +358,39 @@ class TMXLevelLoader
         tile.y = start.getInt("y")
         tile.width = start.getInt("width")
         tile.height = start.getInt("height")
+    }
+
+    private fun parseTileProperty(tile: Tile, start: StartElement) {
+        val propName = start.getString("name")
+        val propType = start.getString("type")
+
+        (tile.propertytypes as MutableMap)[propName] = propType
+
+        (tile.properties as MutableMap)[propName] = when (propType) {
+            "int" -> {
+                start.getInt("value")
+            }
+
+            "bool" -> {
+                start.getBoolean("value")
+            }
+
+            "float" -> {
+                start.getFloat("value")
+            }
+
+            "string", "" -> {
+                start.getString("value")
+            }
+
+            "color" -> {
+                start.getColor("value")
+            }
+
+            else -> {
+                throw IllegalArgumentException("Unknown property type: $propType for $propName")
+            }
+        }
     }
 
     /**

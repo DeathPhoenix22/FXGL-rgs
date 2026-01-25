@@ -44,5 +44,7 @@ data class Tile(
         var height: Int = 0,
         var imagewidth: Int = 0,
         var imageheight: Int = 0,
-        var transparentcolor: String = ""
-)
+        var transparentcolor: String = "",
+        var properties: Map<String, Any> = hashMapOf(),
+        var propertytypes: Map<String, String> = hashMapOf()) {
+}
