@@ -58,6 +58,10 @@ class EntityBuilder {
         entity.type = t
     }
 
+    fun data(d: Object) = this.also {
+        entity.setData(d)
+    }
+
     fun at(x: Double, y: Double) = this.also {
         entity.setPosition(x, y)
     }

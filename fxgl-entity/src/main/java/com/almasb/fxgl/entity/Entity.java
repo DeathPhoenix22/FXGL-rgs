@@ -110,6 +110,7 @@ public class Entity implements Animatable, Copyable<Entity> {
 
     private static final Logger log = Logger.get(Entity.class);
 
+    private Object data;
     private PropertyMap properties = new PropertyMap();
     private ComponentMap components = new ComponentMap();
 
@@ -296,6 +297,19 @@ public class Entity implements Animatable, Copyable<Entity> {
      */
     public final void setOnNotActive(Runnable action) {
         onNotActive = action;
+    }
+
+    public final boolean hasData() {
+        return data != null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public final <T> T getData() {
+        return (T) data;
+    }
+
+    public final void setData(Object data) {
+        this.data = data;
     }
 
     public final PropertyMap getProperties() {
